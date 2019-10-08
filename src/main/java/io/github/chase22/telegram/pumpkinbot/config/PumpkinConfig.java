@@ -8,11 +8,16 @@ public class PumpkinConfig {
     private final String botUsername;
     private final String botToken;
     private final String redisUrl;
+    private final String keystorePassword;
+    private final String url;
 
     public PumpkinConfig() {
         botToken = getFromEnvironment("BOT_TOKEN");
+        keystorePassword = getFromEnvironment("BOT_KEYSTORE_PASS");
+
         botUsername = getFromEnvironment("BOT_USERNAME", "PumpkinBotBot");
         redisUrl = getFromEnvironment("REDIS_URL" , "https://localhost:6379");
+        url = getFromEnvironment("BOT_URL", "");
     }
 
     @NotNull
@@ -28,6 +33,20 @@ public class PumpkinConfig {
     @NotNull
     public String getRedisUrl() {
         return redisUrl;
+    }
+
+    @NotNull
+    public String getKeystorePassword() {
+        return keystorePassword;
+    }
+
+
+    public String getUrl() {
+        return url;
+    }
+
+    public boolean isWebhook() {
+        return url.isBlank();
     }
 
     private String getFromEnvironment(@NotNull String key) {

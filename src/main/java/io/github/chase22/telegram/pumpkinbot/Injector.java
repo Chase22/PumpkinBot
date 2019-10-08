@@ -3,6 +3,7 @@ package io.github.chase22.telegram.pumpkinbot;
 import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
 import io.github.chase22.telegram.pumpkinbot.language.LanguageHandler;
 import io.github.chase22.telegram.pumpkinbot.sender.LongPollingSender;
+import io.github.chase22.telegram.pumpkinbot.sender.WebhookSender;
 import io.github.chase22.telegram.pumpkinbot.storage.PumpkinStorage;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
@@ -18,7 +19,11 @@ public class Injector {
         languageHandler = new LanguageHandler();
         pumpkinConfig = new PumpkinConfig();
 
-        sender = new LongPollingSender(pumpkinConfig);
+        if (pumpkinConfig.isWebhook()) {
+            sender = new WebhookSender(pumpkinConfig);
+        } else {
+            sender = new LongPollingSender(pumpkinConfig);
+        }
 
         pumpkinStorage = new PumpkinStorage(pumpkinConfig);
 
