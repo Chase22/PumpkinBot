@@ -1,10 +1,15 @@
 package io.github.chase22.telegram.pumpkinbot.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 public class PumpkinConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PumpkinConfig.class);
+
     private final String botUsername;
     private final String botToken;
     private final String redisUrl;
@@ -70,7 +75,14 @@ public class PumpkinConfig {
 
     private String getFromEnvironment(@NotNull String key, @Nullable String defaultValue) {
         return Optional.ofNullable(System.getenv(key))
-                .or(() -> Optional.ofNullable(defaultValue))
+                .flatMap(s -> {
+                    LOGGER.info("Read " + key + " = " + s + " from environment");
+                    return Optional.of(s);
+                })
+                .or(() -> {
+                    LOGGER.info(key + " not found in enviroment. Returning default: " + defaultValue);
+                    return Optional.ofNullable(defaultValue);
+                })
                 .orElseThrow(() -> new IllegalArgumentException("No value for key " + key));
     }
 
