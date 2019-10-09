@@ -26,7 +26,7 @@ public class PumpkinConfig {
 
         botUsername = getFromEnvironment("BOT_USERNAME", "PumpkinBotBot");
         redisUrl = getFromEnvironment("REDIS_URL" , "https://localhost:6379");
-        internalUrl = getFromEnvironment("BOT_INTERNAL_URL", "localhost");
+        internalUrl = getFromEnvironment("BOT_INTERNAL_URL", "https://localhost");
         externalUrl = getFromEnvironment("BOT_URL", "");
         port = Integer.parseInt(getFromEnvironment("PORT"));
 
