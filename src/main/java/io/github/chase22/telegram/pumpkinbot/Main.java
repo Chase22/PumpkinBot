@@ -31,8 +31,8 @@ public class Main {
             telegramBotsApi = new TelegramBotsApi(
                     filesConfig.getKeystorePath(),
                     config.getKeystorePassword(),
-                    config.getUrl(),
-                    config.getUrl(),
+                    config.getUrl() + ":" + config.getPort(),
+                    config.getUrl() + ":" + config.getPort(),
                     filesConfig.getCertificatePath()
             );
         } else {

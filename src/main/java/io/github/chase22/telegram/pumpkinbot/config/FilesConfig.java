@@ -15,8 +15,8 @@ public class FilesConfig {
     private final String certificatePath;
 
     public FilesConfig(PumpkinConfig pumpkinConfig) throws IOException {
-        this.keystorePath = copyRessourceToFile(pumpkinConfig.getKeystoreRessource()).getAbsolutePath();
-        this.certificatePath = copyRessourceToFile(pumpkinConfig.getCertificateRessource()).getAbsolutePath();
+        this.keystorePath = copyRessourceToFile(pumpkinConfig.getKeystoreResource()).getAbsolutePath();
+        this.certificatePath = copyRessourceToFile(pumpkinConfig.getCertificateResource()).getAbsolutePath();
     }
 
     public String getKeystorePath() {

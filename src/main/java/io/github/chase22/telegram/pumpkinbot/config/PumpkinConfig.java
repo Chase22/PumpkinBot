@@ -10,8 +10,9 @@ public class PumpkinConfig {
     private final String redisUrl;
     private final String keystorePassword;
     private final String url;
-    private final String keystoreRessource;
-    private final String certificateRessource;
+    private final String keystoreResource;
+    private final String certificateResource;
+    private final int port;
 
     public PumpkinConfig() {
         botToken = getFromEnvironment("BOT_TOKEN");
@@ -20,9 +21,10 @@ public class PumpkinConfig {
         botUsername = getFromEnvironment("BOT_USERNAME", "PumpkinBotBot");
         redisUrl = getFromEnvironment("REDIS_URL" , "https://localhost:6379");
         url = getFromEnvironment("BOT_URL", "");
+        port = Integer.parseInt(getFromEnvironment("PORT"));
 
-        keystoreRessource = getFromEnvironment("BOT_KEYSTORE_RESSOURCE", "/pumpkinbot.jsk");
-        certificateRessource = getFromEnvironment("BOT_CERTIFICATE_RESSOURCE", "/pumpkinbot.pem");
+        keystoreResource = getFromEnvironment("BOT_KEYSTORE_RESSOURCE", "/pumpkinbot.jsk");
+        certificateResource = getFromEnvironment("BOT_CERTIFICATE_RESSOURCE", "/pumpkinbot.pem");
     }
 
     @NotNull
@@ -54,12 +56,12 @@ public class PumpkinConfig {
         return !url.isBlank();
     }
 
-    public String getKeystoreRessource() {
-        return keystoreRessource;
+    public String getKeystoreResource() {
+        return keystoreResource;
     }
 
-    public String getCertificateRessource() {
-        return certificateRessource;
+    public String getCertificateResource() {
+        return certificateResource;
     }
 
     private String getFromEnvironment(@NotNull String key) {
@@ -70,5 +72,9 @@ public class PumpkinConfig {
         return Optional.ofNullable(System.getenv(key))
                 .or(() -> Optional.ofNullable(defaultValue))
                 .orElseThrow(() -> new IllegalArgumentException("No value for key " + key));
+    }
+
+    public int getPort() {
+        return port;
     }
 }
