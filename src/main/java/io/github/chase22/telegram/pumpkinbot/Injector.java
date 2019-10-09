@@ -1,5 +1,6 @@
 package io.github.chase22.telegram.pumpkinbot;
 
+import io.github.chase22.telegram.pumpkinbot.config.FilesConfig;
 import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
 import io.github.chase22.telegram.pumpkinbot.language.LanguageHandler;
 import io.github.chase22.telegram.pumpkinbot.sender.LongPollingSender;
@@ -7,15 +8,18 @@ import io.github.chase22.telegram.pumpkinbot.sender.WebhookSender;
 import io.github.chase22.telegram.pumpkinbot.storage.PumpkinStorage;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
+import java.io.IOException;
+
 public class Injector {
     public PumpkinBot pumpkinBot;
     public PumpkinConfig pumpkinConfig;
+    public FilesConfig filesConfig;
     public PumpkinStorage pumpkinStorage;
     public LanguageHandler languageHandler;
     public CommandHandler commandHandler;
     public AbsSender sender;
 
-    public Injector initialize() {
+    public Injector initialize() throws IOException {
         languageHandler = new LanguageHandler();
         pumpkinConfig = new PumpkinConfig();
 
@@ -25,6 +29,7 @@ public class Injector {
             sender = new LongPollingSender(pumpkinConfig);
         }
 
+        filesConfig = new FilesConfig(pumpkinConfig);
         pumpkinStorage = new PumpkinStorage(pumpkinConfig);
 
         pumpkinBot = new PumpkinBot(sender, languageHandler, pumpkinStorage);
