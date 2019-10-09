@@ -14,7 +14,8 @@ public class PumpkinConfig {
     private final String botToken;
     private final String redisUrl;
     private final String keystorePassword;
-    private final String url;
+    private final String internalUrl;
+    private final String externalUrl;
     private final String keystoreResource;
     private final String certificateResource;
     private final int port;
@@ -25,7 +26,8 @@ public class PumpkinConfig {
 
         botUsername = getFromEnvironment("BOT_USERNAME", "PumpkinBotBot");
         redisUrl = getFromEnvironment("REDIS_URL" , "https://localhost:6379");
-        url = getFromEnvironment("BOT_URL", "");
+        internalUrl = getFromEnvironment("BOT_INTERNAL_URL", "localhost");
+        externalUrl = getFromEnvironment("BOT_URL", "");
         port = Integer.parseInt(getFromEnvironment("PORT"));
 
         keystoreResource = getFromEnvironment("BOT_KEYSTORE_RESSOURCE", "/pumpkinbot.jsk");
@@ -53,12 +55,20 @@ public class PumpkinConfig {
     }
 
 
-    public String getUrl() {
-        return url;
+    public String getExternalUrl() {
+        return externalUrl;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getInternalUrl() {
+        return internalUrl;
     }
 
     public boolean isWebhook() {
-        return !url.isBlank();
+        return !externalUrl.isBlank();
     }
 
     public String getKeystoreResource() {
@@ -84,9 +94,5 @@ public class PumpkinConfig {
                     return Optional.ofNullable(defaultValue);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("No value for key " + key));
-    }
-
-    public int getPort() {
-        return port;
     }
 }
