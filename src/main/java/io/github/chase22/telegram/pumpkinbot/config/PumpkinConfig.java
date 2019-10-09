@@ -46,7 +46,7 @@ public class PumpkinConfig {
     }
 
     public boolean isWebhook() {
-        return url.isBlank();
+        return !url.isBlank();
     }
 
     private String getFromEnvironment(@NotNull String key) {
