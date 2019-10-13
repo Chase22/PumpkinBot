@@ -30,8 +30,8 @@ public class PumpkinConfig {
         externalUrl = getFromEnvironment("BOT_URL", "");
         port = Integer.parseInt(getFromEnvironment("PORT"));
 
-        keystoreResource = getFromEnvironment("BOT_KEYSTORE_RESSOURCE", "/pumpkinbot.jsk");
-        certificateResource = getFromEnvironment("BOT_CERTIFICATE_RESSOURCE", "/pumpkinbot.pem");
+        keystoreResource = getFromEnvironment("BOT_KEYSTORE_RESOURCE", "/pumpkin.jks");
+        certificateResource = getFromEnvironment("BOT_CERTIFICATE_RESOURCE", "/pumpkin.pem");
     }
 
     @NotNull

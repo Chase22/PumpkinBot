@@ -16,36 +16,42 @@ import java.io.IOException;
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String... args) throws TelegramApiRequestException, IOException {
-        ApiContextInitializer.init();
+    public static void main(String... args) {
+        try {
+            ApiContextInitializer.init();
 
-        Injector injector = new Injector().initialize();
+            Injector injector = new Injector().initialize();
 
-        final PumpkinConfig config = injector.pumpkinConfig;
-        final FilesConfig filesConfig = injector.filesConfig;
+            final PumpkinConfig config = injector.pumpkinConfig;
+            final FilesConfig filesConfig = injector.filesConfig;
 
-        TelegramBotsApi telegramBotsApi;
+            TelegramBotsApi telegramBotsApi;
 
-        if (config.isWebhook()) {
-            LOGGER.info("Configuring Webhook");
-            telegramBotsApi = new TelegramBotsApi(
-                    filesConfig.getKeystorePath(),
-                    config.getKeystorePassword(),
-                    config.getExternalUrl(),
-                    config.getInternalUrl() + ":" + config.getPort(),
-                    filesConfig.getCertificatePath()
-            );
-        } else {
-            LOGGER.info("Configuring Longpolling");
-            telegramBotsApi = new TelegramBotsApi();
-        }
+            if (config.isWebhook()) {
+                LOGGER.info("Configuring Webhook");
+                telegramBotsApi = new TelegramBotsApi(
+                        filesConfig.getKeystorePath(),
+                        config.getKeystorePassword(),
+                        config.getExternalUrl(),
+                        config.getInternalUrl() + ":" + config.getPort(),
+                        filesConfig.getCertificatePath()
+                );
+            } else {
+                LOGGER.info("Configuring Longpolling");
+                telegramBotsApi = new TelegramBotsApi();
+            }
 
-        if (injector.sender instanceof TelegramLongPollingBot) {
-            LOGGER.info("Registering LongpollingBot");
-            telegramBotsApi.registerBot((LongPollingBot) injector.sender);
-        } else {
-            LOGGER.info("Registering WebhookBot");
-            telegramBotsApi.registerBot((WebhookBot) injector.sender);
+            if (injector.sender instanceof TelegramLongPollingBot) {
+                LOGGER.info("Registering LongpollingBot");
+                telegramBotsApi.registerBot((LongPollingBot) injector.sender);
+            } else {
+                LOGGER.info("Registering WebhookBot");
+                telegramBotsApi.registerBot((WebhookBot) injector.sender);
+            }
+        } catch (TelegramApiRequestException e) {
+            LOGGER.error("Telegram api returned" + e.getApiResponse(), e);
+        } catch (IOException e) {
+            LOGGER.error("Error injecting dependencies", e);
         }
     }
 }

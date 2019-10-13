@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 public class FilesConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(FilesConfig.class);
 
@@ -28,13 +30,9 @@ public class FilesConfig {
     }
 
     private File copyRessourceToFile(String resource) throws IOException {
-        LOGGER.info("Copying " + resource + " to temporary file");
         Path tempFilePath = Files.createTempFile(resourceToPrefix(resource), null);
-        if (tempFilePath.toFile().exists()) {
-            LOGGER.info("File " + resource + " already exists. Returning");
-        } else {
-            Files.copy(FilesConfig.class.getResourceAsStream(resource), tempFilePath);
-        }
+        LOGGER.info("Copying " + resource + " to temporary file " + tempFilePath.toString());
+        Files.copy(FilesConfig.class.getResourceAsStream(resource), tempFilePath, REPLACE_EXISTING);
         return tempFilePath.toFile();
     }
 
