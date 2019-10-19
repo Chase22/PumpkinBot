@@ -42,7 +42,6 @@ public class PumpkinBot {
                 String messageText = message.getText().toLowerCase().trim();
 
                 if (languageHandler.containsPumpkin(messageText)) {
-                    sender.execute(new SendMessage(message.getChatId(), "Pumpkin found"));
                     storage.increase(message.getChatId());
                 }
             }
