@@ -40,9 +40,7 @@ public class PumpkinBot {
                 commandHandler.handle(message);
                 String messageText = message.getText().toLowerCase().trim();
 
-                if (languageHandler.containsPumpkin(messageText)) {
-                    storage.increase(message.getChatId());
-                }
+                storage.increase(message.getChatId(), languageHandler.countPumpkin(messageText));
             }
         } catch (TelegramApiException e) {
             LOGGER.error("Unable to execute telegram method", e);

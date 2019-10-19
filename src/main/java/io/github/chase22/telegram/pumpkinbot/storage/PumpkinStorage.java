@@ -24,8 +24,8 @@ public class PumpkinStorage {
         client.del(Long.toString(chatId));
     }
 
-    public void increase(final Long chatId) {
-        setForChat(chatId, getForChat(chatId) + 1);
+    public void increase(final Long chatId, final int amount) {
+        setForChat(chatId, getForChat(chatId) + amount);
     }
 
     public boolean exists(final Long chatId) {

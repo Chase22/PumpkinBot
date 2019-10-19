@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
@@ -38,10 +39,12 @@ public class LanguageHandler {
         return languageList.stream().map(Language::getLanguage).collect(Collectors.joining(System.lineSeparator()));
     }
 
-    public boolean containsPumpkin(String text) {
-        return languageList.stream().filter(language -> text.contains(language.getWord())).peek(language ->
-                LOGGER.info("Language {} with word {} matched {}", language.getLanguage(), language.getWord(), text)
-        ).count() > 0;
+    public int countPumpkin(String text) {
+        return languageList.stream().mapToInt(language -> countSubstring(language.getWord(), text)).sum();
+    }
+
+    public int countSubstring(String subStr, String str){
+        return str.split(Pattern.quote(subStr), -1).length - 1;
     }
 
     public int getLanguageCount() {
