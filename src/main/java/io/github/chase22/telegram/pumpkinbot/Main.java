@@ -39,6 +39,8 @@ public class Main {
             } else {
                 LOGGER.info("Configuring Longpolling");
                 telegramBotsApi = new TelegramBotsApi();
+
+                new Portbinder(config.getPort());
             }
 
             if (injector.sender instanceof TelegramLongPollingBot) {
