@@ -37,10 +37,11 @@ public class PumpkinBot {
             if (update.hasMessage() && update.getMessage().hasText()) {
                 Message message = update.getMessage();
 
-                commandHandler.handle(message);
                 String messageText = message.getText().toLowerCase().trim();
 
                 storage.increase(message.getChatId(), languageHandler.countPumpkin(messageText));
+
+                commandHandler.handle(message);
             }
         } catch (TelegramApiException e) {
             LOGGER.error("Unable to execute telegram method", e);
