@@ -33,6 +33,8 @@ dependencies {
     //logging
     implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.12.1'
 
+    implementation group: 'io.undertow', name: 'undertow-core', version: '2.0.27.Final'
+
     //jaxb
     implementation "javax.xml.bind:jaxb-api:2.3.1"
     implementation "com.sun.xml.bind:jaxb-core:2.3.0"

@@ -1,31 +1,16 @@
 package io.github.chase22.telegram.pumpkinbot;
 
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.Executors;
+import io.undertow.Undertow;
+import io.undertow.util.StatusCodes;
 
 public class Portbinder {
 
     Portbinder(final int port) {
-        try {
-            String host = null;
-            ServerSocket socket = new ServerSocket(port);
-            LoggerFactory.getLogger(Portbinder.class).info("Bound port {}", port);
-            Executors.newFixedThreadPool(1).submit(() -> {
-                try {
-                    while (!Thread.interrupted()) {
-                        final Socket clientSocket = socket.accept();
-                        clientSocket.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
+            Undertow undertow = Undertow.builder()
+                    .addHttpListener(port, "localhost")
+                    .setHandler(exchange ->
+                            exchange.setStatusCode(StatusCodes.OK).endExchange()).build();
+
+            undertow.start();
         }
-    }
 }
