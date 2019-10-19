@@ -9,7 +9,7 @@ public class Portbinder {
             Undertow undertow = Undertow.builder()
                     .addHttpListener(port, "localhost")
                     .setHandler(exchange ->
-                            exchange.setStatusCode(StatusCodes.OK).endExchange()).build();
+                            exchange.getResponseSender().send("OK")).build();
 
             undertow.start();
         }
