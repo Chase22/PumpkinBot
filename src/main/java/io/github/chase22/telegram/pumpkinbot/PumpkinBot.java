@@ -5,7 +5,6 @@ import io.github.chase22.telegram.pumpkinbot.sender.UpdateProvider;
 import io.github.chase22.telegram.pumpkinbot.storage.PumpkinStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;

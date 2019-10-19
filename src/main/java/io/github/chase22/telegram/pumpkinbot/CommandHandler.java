@@ -53,7 +53,9 @@ public class CommandHandler {
 
         final Optional<String> command = message.getEntities().stream()
                 .filter(messageEntity -> messageEntity.getType().equals(EntityType.BOTCOMMAND))
-                .map(MessageEntity::getText).findFirst();
+                .map(MessageEntity::getText)
+                .map(entity -> entity.split("@", 2)[0])
+                .findFirst();
 
         if (command.isPresent()) {
             handleCommand(command.get().toLowerCase().trim(), message);
