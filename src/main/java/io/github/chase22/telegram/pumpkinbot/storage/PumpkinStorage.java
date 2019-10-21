@@ -1,12 +1,15 @@
 package io.github.chase22.telegram.pumpkinbot.storage;
 
 import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.net.URI;
 
 public class PumpkinStorage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PumpkinStorage.class);
     private static JedisPool pool;
 
     public PumpkinStorage(final PumpkinConfig pumpkinConfig) {
@@ -23,10 +26,12 @@ public class PumpkinStorage {
     }
 
     public int getForChat(long chatId) {
+        LOGGER.info("Get for chat " + chatId);
         return Integer.parseInt(pool.getResource().get(Long.toString(chatId)));
     }
 
     public void setForChat(long chatId, int value) {
+        LOGGER.info("Set value " + value + " for chatid " + chatId);
         pool.getResource().set(Long.toString(chatId), Integer.toString(value));
     }
 
