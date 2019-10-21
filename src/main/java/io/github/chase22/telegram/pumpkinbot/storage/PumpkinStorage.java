@@ -1,34 +1,46 @@
 package io.github.chase22.telegram.pumpkinbot.storage;
 
 import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.net.URI;
 
 public class PumpkinStorage {
-    private final Jedis client;
+    private static JedisPool pool;
 
     public PumpkinStorage(final PumpkinConfig pumpkinConfig) {
-        client = new Jedis(URI.create(pumpkinConfig.getRedisUrl()));
+        URI redisURI = URI.create(pumpkinConfig.getRedisUrl());
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(10);
+        poolConfig.setMaxIdle(5);
+        poolConfig.setMinIdle(1);
+        poolConfig.setTestOnBorrow(true);
+        poolConfig.setTestOnReturn(true);
+        poolConfig.setTestWhileIdle(true);
+
+        pool = new JedisPool(poolConfig, redisURI);
     }
 
     public int getForChat(long chatId) {
-        return Integer.parseInt(client.get(Long.toString(chatId)));
+        return Integer.parseInt(pool.getResource().get(Long.toString(chatId)));
     }
 
     public void setForChat(long chatId, int value) {
-        client.set(Long.toString(chatId), Integer.toString(value));
+        pool.getResource().set(Long.toString(chatId), Integer.toString(value));
     }
 
     public void removeChat(long chatId) {
-        client.del(Long.toString(chatId));
+        pool.getResource().del(Long.toString(chatId));
     }
 
     public void increase(final Long chatId, final int amount) {
+        if (amount == 0) return;
         setForChat(chatId, getForChat(chatId) + amount);
     }
 
     public boolean exists(final Long chatId) {
-        return client.exists(Long.toString(chatId));
+        return pool.getResource().exists(Long.toString(chatId));
     }
+
 }
