@@ -40,8 +40,10 @@ public class PumpkinBot {
 
                 String messageText = message.getText().toLowerCase().trim();
 
-                LOGGER.debug("Get pumpkin count " + messageText);
-                storage.increase(message.getChatId(), languageHandler.countPumpkin(messageText));
+                if (storage.exists(message.getChatId())) {
+                    LOGGER.debug("Get pumpkin count " + messageText);
+                    storage.increase(message.getChatId(), languageHandler.countPumpkin(messageText));
+                }
 
                 LOGGER.debug("Handle command");
                 commandHandler.handle(message);
