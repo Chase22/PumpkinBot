@@ -42,13 +42,13 @@ public class CommandHandler {
     private final LanguageHandler languageHandler;
     private final PumpkinStorage storage;
 
-    public CommandHandler(final AbsSender sender, final LanguageHandler languageHandler, final PumpkinStorage storage) {
+    CommandHandler(final AbsSender sender, final LanguageHandler languageHandler, final PumpkinStorage storage) {
         this.sender = sender;
         this.languageHandler = languageHandler;
         this.storage = storage;
     }
 
-    public void handle(final Message message) throws TelegramApiException {
+    void handle(final Message message) throws TelegramApiException {
         if (!message.isCommand()) return;
 
         final Optional<String> command = message.getEntities().stream()
@@ -90,8 +90,12 @@ public class CommandHandler {
     }
 
     private void count(final Message message) throws TelegramApiException {
-        final int count = storage.getForChat(message.getChatId());
-        sendMessage(message, COUNT_PATTERN, count);
+        if (storage.exists(message.getChatId())) {
+            final int count = storage.getForChat(message.getChatId());
+            sendMessage(message, COUNT_PATTERN, count);
+        } else {
+            sendMessage(message, NOT_STARTED_PATTERN);
+        }
     }
 
     private void stop(final Message message) throws TelegramApiException {
@@ -120,9 +124,13 @@ public class CommandHandler {
     private void reset(final Message message) throws TelegramApiException {
         if (!checkAdmin(message)) return;
 
-        sendMessage(message, RESET_PATTERN);
-        storage.setForChat(message.getChatId(), 0);
-        count(message);
+        if (storage.exists(message.getChatId())) {
+            sendMessage(message, ALREADY_STARTED_PATTERN);
+        } else {
+            sendMessage(message, RESET_PATTERN);
+            storage.setForChat(message.getChatId(), 0);
+            count(message);
+        }
     }
 
     private void languages(final Message message) throws TelegramApiException {
