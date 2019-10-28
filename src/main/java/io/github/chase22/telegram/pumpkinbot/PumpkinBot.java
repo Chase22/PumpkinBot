@@ -32,18 +32,18 @@ public class PumpkinBot {
     }
 
     public void onUpdateReceived(final Update update) {
-        LOGGER.info("Update received");
+        LOGGER.debug("Update received");
         try {
             if (update.hasMessage() && update.getMessage().hasText()) {
-                LOGGER.info("Message received");
+                LOGGER.debug("Message received");
                 Message message = update.getMessage();
 
                 String messageText = message.getText().toLowerCase().trim();
 
-                LOGGER.info("Get pumpkin count " + messageText);
+                LOGGER.debug("Get pumpkin count " + messageText);
                 storage.increase(message.getChatId(), languageHandler.countPumpkin(messageText));
 
-                LOGGER.info("Handle command");
+                LOGGER.debug("Handle command");
                 commandHandler.handle(message);
             }
         } catch (TelegramApiException e) {

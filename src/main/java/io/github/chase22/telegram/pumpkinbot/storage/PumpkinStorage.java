@@ -27,14 +27,14 @@ public class PumpkinStorage {
     }
 
     public int getForChat(long chatId) {
-        LOGGER.info("Get for chat " + chatId);
+        LOGGER.debug("Get for chat " + chatId);
         try (final Jedis resource = pool.getResource()) {
             return Integer.parseInt(resource.get(Long.toString(chatId)));
         }
     }
 
     public void setForChat(long chatId, int value) {
-        LOGGER.info("Set value " + value + " for chatid " + chatId);
+        LOGGER.debug("Set value " + value + " for chatid " + chatId);
 
         try (final Jedis resource = pool.getResource()) {
             resource.set(Long.toString(chatId), Integer.toString(value));
