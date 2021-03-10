@@ -8,6 +8,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.net.URI;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PumpkinStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(PumpkinStorage.class);
@@ -30,6 +32,15 @@ public class PumpkinStorage {
         LOGGER.debug("Get for chat " + chatId);
         try (final Jedis resource = pool.getResource()) {
             return Integer.parseInt(resource.get(Long.toString(chatId)));
+        }
+    }
+
+    public Map<String, Integer> getAll() {
+        try (final Jedis resource = pool.getResource()) {
+            return resource.keys("*").stream().collect(Collectors.toMap(
+                    key -> key,
+                    key -> Integer.parseInt(resource.get(key))
+            ));
         }
     }
 

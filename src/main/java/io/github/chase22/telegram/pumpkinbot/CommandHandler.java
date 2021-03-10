@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static org.telegram.telegrambots.meta.api.methods.ParseMode.MARKDOWN;
@@ -82,6 +83,9 @@ public class CommandHandler {
             case "/languages":
                 languages(message);
                 break;
+            case "/dump":
+                dump(message);
+                break;
         }
     }
 
@@ -135,6 +139,15 @@ public class CommandHandler {
 
     private void languages(final Message message) throws TelegramApiException {
         sendMessage(message, LANGUAGES_PATTERN, languageHandler.getLanguages());
+    }
+
+    private void dump(final Message message) throws TelegramApiException {
+        if (message.getFrom().getId() == 188215327) {
+            String messageText = storage.getAll().entrySet().stream()
+                    .map(entry -> entry.getKey() + ": " + entry.getValue())
+                    .collect(Collectors.joining("\n"));
+            sendMessage(message, messageText);
+        }
     }
 
     private void sendMessageMarkdown(final Message message,
