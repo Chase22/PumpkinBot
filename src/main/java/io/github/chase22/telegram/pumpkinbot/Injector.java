@@ -1,5 +1,6 @@
 package io.github.chase22.telegram.pumpkinbot;
 
+import io.github.chase22.telegram.pumpkinbot.commands.*;
 import io.github.chase22.telegram.pumpkinbot.config.FilesConfig;
 import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
 import io.github.chase22.telegram.pumpkinbot.language.LanguageHandler;
@@ -9,6 +10,8 @@ import io.github.chase22.telegram.pumpkinbot.storage.PumpkinStorage;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Injector {
     public PumpkinBot pumpkinBot;
@@ -16,7 +19,6 @@ public class Injector {
     public FilesConfig filesConfig;
     public PumpkinStorage pumpkinStorage;
     public LanguageHandler languageHandler;
-    public CommandHandler commandHandler;
     public AbsSender sender;
 
     public Injector initialize() throws IOException {
@@ -32,11 +34,20 @@ public class Injector {
         filesConfig = new FilesConfig(pumpkinConfig);
         pumpkinStorage = new PumpkinStorage(pumpkinConfig);
 
-        pumpkinBot = new PumpkinBot(sender, languageHandler, pumpkinStorage);
+        //Commands
+        HelpCommand helpCommand = new HelpCommand();
+        LanguageCommand languageCommand = new LanguageCommand(languageHandler);
 
-        commandHandler = new CommandHandler(sender, languageHandler, pumpkinStorage);
+        DumpCommand dumpCommand = new DumpCommand(pumpkinStorage);
+        StopCommand stopCommand = new StopCommand(pumpkinStorage);
+        CountCommand countCommand = new CountCommand(pumpkinStorage);
 
-        pumpkinBot.setCommandHandler(commandHandler);
+        StartCommand startCommand = new StartCommand(pumpkinStorage, languageHandler, countCommand);
+        ResetCommand resetCommand = new ResetCommand(pumpkinStorage, countCommand);
+
+        pumpkinBot = new PumpkinBot(sender, languageHandler, pumpkinStorage, pumpkinConfig, List.of(
+                helpCommand, languageCommand, dumpCommand, stopCommand, countCommand, startCommand, resetCommand
+        ));
 
         return this;
     }

@@ -1,14 +1,19 @@
 package io.github.chase22.telegram.pumpkinbot;
 
+import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
 import io.github.chase22.telegram.pumpkinbot.language.LanguageHandler;
 import io.github.chase22.telegram.pumpkinbot.sender.UpdateProvider;
 import io.github.chase22.telegram.pumpkinbot.storage.PumpkinStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.extensions.bots.commandbot.commands.CommandRegistry;
+import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.List;
 
 public class PumpkinBot {
 
@@ -17,12 +22,21 @@ public class PumpkinBot {
     private final AbsSender sender;
     private final LanguageHandler languageHandler;
     private final PumpkinStorage storage;
-    private CommandHandler commandHandler;
+    private final CommandRegistry commandRegistry;
 
-    public PumpkinBot(final AbsSender sender, final LanguageHandler languageHandler, final PumpkinStorage storage) {
+    public PumpkinBot(
+            final AbsSender sender,
+            final LanguageHandler languageHandler,
+            final PumpkinStorage storage,
+            final PumpkinConfig config,
+            final List<IBotCommand> commands
+    ) {
         this.sender = sender;
         this.languageHandler = languageHandler;
         this.storage = storage;
+
+        commandRegistry = new CommandRegistry(true, config::getBotUsername);
+        commands.forEach(commandRegistry::register);
 
         if (sender instanceof UpdateProvider) {
             ((UpdateProvider) sender).setUpdateConsumer(this::onUpdateReceived);
@@ -33,27 +47,17 @@ public class PumpkinBot {
 
     public void onUpdateReceived(final Update update) {
         LOGGER.debug("Update received");
-        try {
-            if (update.hasMessage() && update.getMessage().hasText()) {
-                LOGGER.debug("Message received");
-                Message message = update.getMessage();
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            LOGGER.debug("Message received");
+            Message message = update.getMessage();
 
-                String messageText = message.getText().toLowerCase().trim();
+            String messageText = message.getText().toLowerCase().trim();
 
-                if (storage.exists(message.getChatId())) {
-                    LOGGER.debug("Get pumpkin count " + messageText);
-                    storage.increase(message.getChatId(), languageHandler.countPumpkin(messageText));
-                }
-
-                LOGGER.debug("Handle command");
-                commandHandler.handle(message);
+            if (storage.exists(message.getChatId())) {
+                LOGGER.debug("Get pumpkin count " + messageText);
+                storage.increase(message.getChatId(), languageHandler.countPumpkin(messageText));
             }
-        } catch (TelegramApiException e) {
-            LOGGER.error("Unable to execute telegram method", e);
+            commandRegistry.executeCommand(sender, message);
         }
-    }
-
-    public void setCommandHandler(final CommandHandler commandHandler) {
-        this.commandHandler = commandHandler;
     }
 }
