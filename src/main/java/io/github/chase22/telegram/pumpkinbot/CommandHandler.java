@@ -142,13 +142,15 @@ public class CommandHandler {
                                      final boolean hidePreview,
                                      final boolean markdown,
                                      Object... vars) throws TelegramApiException {
-        final SendMessage sendMessage = new SendMessage(message.getChatId(), String.format(pattern, vars))
-                .setReplyToMessageId(message.getMessageId());
+        final SendMessage.SendMessageBuilder sendMessageBuilder = SendMessage.builder()
+                .text(String.format(pattern, vars))
+                .chatId(message.getChatId().toString())
+                .replyToMessageId(message.getMessageId())
+                .disableWebPagePreview(hidePreview);
 
-        if (hidePreview) sendMessage.disableWebPagePreview();
-        if (markdown) sendMessage.setParseMode(MARKDOWN);
+        if (markdown) sendMessageBuilder.parseMode(MARKDOWN);
 
-        sender.execute(sendMessage);
+        sender.execute(sendMessageBuilder.build());
     }
 
     private void sendMessage(final Message message, final String pattern, Object... vars) throws TelegramApiException {
@@ -167,9 +169,10 @@ public class CommandHandler {
     }
 
     private boolean isAdmin(Message message) throws TelegramApiException {
-        final GetChatMember getChatMember = new GetChatMember()
-                .setChatId(message.getChatId())
-                .setUserId(message.getFrom().getId());
+        final GetChatMember getChatMember = new GetChatMember(
+                message.getChatId().toString(),
+                message.getFrom().getId()
+        );
 
         final ChatMember chatMember = sender.execute(getChatMember);
 
