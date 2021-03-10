@@ -2,6 +2,7 @@ package io.github.chase22.telegram.pumpkinbot;
 
 import io.github.chase22.telegram.pumpkinbot.language.LanguageHandler;
 import io.github.chase22.telegram.pumpkinbot.storage.PumpkinStorage;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.ChatMember;
@@ -144,9 +145,17 @@ public class CommandHandler {
     private void dump(final Message message) throws TelegramApiException {
         if (message.getFrom().getId() == 188215327) {
             String messageText = storage.getAll().entrySet().stream()
-                    .map(entry -> entry.getKey() + ": " + entry.getValue())
+                    .map(entry -> getChatName(entry.getKey()) + "(" + entry.getKey() + "): " + entry.getValue())
                     .collect(Collectors.joining("\n"));
             sendMessage(message, messageText);
+        }
+    }
+
+    private String getChatName(String id) {
+        try {
+            return sender.execute(new GetChat(id)).getTitle();
+        } catch (TelegramApiException e) {
+            return null;
         }
     }
 
