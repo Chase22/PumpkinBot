@@ -23,7 +23,7 @@ public class PumpkinConfig {
         redisUrl = getFromEnvironment("REDIS_URL" , "https://localhost:6379");
         port = Integer.parseInt(getFromEnvironment("PORT"));
 
-        externalUrl = getFromEnvironment("BOT_EXTERNAL_URL");
+        externalUrl = System.getenv("BOT_EXTERNAL_URL");
     }
 
     @NotNull

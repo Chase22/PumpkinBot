@@ -27,13 +27,14 @@ public class WebhookUpdateProvider implements UpdateProvider {
 
     private final List<Consumer<Update>> consumers = new LinkedList<>();
 
+    final HttpServer server = new HttpServer();
+
     public WebhookUpdateProvider(
             final String externalUrl,
             final AbsSender sender,
             final int port,
             final ObjectMapper objectMapper
     ) {
-        final HttpServer server = new HttpServer();
 
         server.addListener(new NetworkListener("portBinder", "0.0.0.0", port));
 
@@ -84,6 +85,10 @@ public class WebhookUpdateProvider implements UpdateProvider {
             LOGGER.error("Error while setting webhook", e);
         }
 
+    }
+
+    public boolean isRunning() {
+        return server.isStarted();
     }
 
     @Override
