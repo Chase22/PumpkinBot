@@ -26,6 +26,7 @@ public class PumpkinBot {
 
     public PumpkinBot(
             final AbsSender sender,
+            final UpdateProvider updateProvider,
             final LanguageHandler languageHandler,
             final PumpkinStorage storage,
             final PumpkinConfig config,
@@ -37,12 +38,8 @@ public class PumpkinBot {
 
         commandRegistry = new CommandRegistry(true, config::getBotUsername);
         commands.forEach(commandRegistry::register);
-
-        if (sender instanceof UpdateProvider) {
-            ((UpdateProvider) sender).setUpdateConsumer(this::onUpdateReceived);
-        } else {
-            throw new IllegalArgumentException("sender does not implement UpdateProvider");
-        }
+        
+        updateProvider.registerUpdateConsumer(this::onUpdateReceived);
     }
 
     public void onUpdateReceived(final Update update) {

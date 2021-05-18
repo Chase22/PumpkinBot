@@ -26,9 +26,8 @@ public class Main {
             LOGGER.info("Configuring Longpolling");
             telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
 
-            new Portbinder(config.getPort());
-
-            if (injector.sender instanceof TelegramLongPollingBot) {
+            if (injector.updateProvider instanceof TelegramLongPollingBot) {
+                new Portbinder(config.getPort());
                 LOGGER.info("Registering LongpollingBot");
                 telegramBotsApi.registerBot((LongPollingBot) injector.sender);
             }

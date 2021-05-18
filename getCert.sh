@@ -1,0 +1,1 @@
+echo | openssl s_client -servername pumpkincounterbot.herokuapp.com -connect pumpkincounterbot.herokuapp.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > certificate.crt

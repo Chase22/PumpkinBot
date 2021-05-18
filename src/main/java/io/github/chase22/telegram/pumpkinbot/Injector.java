@@ -1,34 +1,47 @@
 package io.github.chase22.telegram.pumpkinbot;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.chase22.telegram.pumpkinbot.commands.*;
 import io.github.chase22.telegram.pumpkinbot.config.FilesConfig;
 import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
 import io.github.chase22.telegram.pumpkinbot.language.LanguageHandler;
 import io.github.chase22.telegram.pumpkinbot.sender.LongPollingSender;
-import io.github.chase22.telegram.pumpkinbot.sender.WebhookSender;
+import io.github.chase22.telegram.pumpkinbot.sender.TelegramSender;
+import io.github.chase22.telegram.pumpkinbot.sender.UpdateProvider;
+import io.github.chase22.telegram.pumpkinbot.sender.WebhookUpdateProvider;
 import io.github.chase22.telegram.pumpkinbot.storage.PumpkinStorage;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Injector {
+    public ObjectMapper objectMapper;
     public PumpkinBot pumpkinBot;
     public PumpkinConfig pumpkinConfig;
     public FilesConfig filesConfig;
     public PumpkinStorage pumpkinStorage;
     public LanguageHandler languageHandler;
     public AbsSender sender;
+    public UpdateProvider updateProvider;
 
     public Injector initialize() throws IOException {
         languageHandler = new LanguageHandler();
         pumpkinConfig = new PumpkinConfig();
+        objectMapper = new ObjectMapper();
 
         if (pumpkinConfig.isWebhook()) {
-            sender = new WebhookSender(pumpkinConfig);
+            sender = new TelegramSender(pumpkinConfig);
+            updateProvider = new WebhookUpdateProvider(
+                    pumpkinConfig.getExternalUrl(),
+                    sender,
+                    pumpkinConfig.getPort(),
+                    objectMapper
+            );
         } else {
-            sender = new LongPollingSender(pumpkinConfig);
+            LongPollingSender longPollingSender = new LongPollingSender(pumpkinConfig);
+            this.sender = longPollingSender;
+            updateProvider = longPollingSender;
         }
 
         filesConfig = new FilesConfig(pumpkinConfig);
@@ -45,7 +58,7 @@ public class Injector {
         StartCommand startCommand = new StartCommand(pumpkinStorage, languageHandler, countCommand);
         ResetCommand resetCommand = new ResetCommand(pumpkinStorage, countCommand);
 
-        pumpkinBot = new PumpkinBot(sender, languageHandler, pumpkinStorage, pumpkinConfig, List.of(
+        pumpkinBot = new PumpkinBot(sender, updateProvider, languageHandler, pumpkinStorage, pumpkinConfig, List.of(
                 helpCommand, languageCommand, dumpCommand, stopCommand, countCommand, startCommand, resetCommand
         ));
 

@@ -13,25 +13,17 @@ public class PumpkinConfig {
     private final String botUsername;
     private final String botToken;
     private final String redisUrl;
-    private final String keystorePassword;
-    private final String internalUrl;
-    private final String externalUrl;
-    private final String keystoreResource;
-    private final String certificateResource;
     private final int port;
+    private final String externalUrl;
 
     public PumpkinConfig() {
         botToken = getFromEnvironment("BOT_TOKEN");
-        keystorePassword = getFromEnvironment("BOT_KEYSTORE_PASS");
 
         botUsername = getFromEnvironment("BOT_USERNAME", "PumpkinBotBot");
         redisUrl = getFromEnvironment("REDIS_URL" , "https://localhost:6379");
-        internalUrl = getFromEnvironment("BOT_INTERNAL_URL", "https://localhost");
-        externalUrl = getFromEnvironment("BOT_URL", "");
         port = Integer.parseInt(getFromEnvironment("PORT"));
 
-        keystoreResource = getFromEnvironment("BOT_KEYSTORE_RESOURCE", "/pumpkin.jks");
-        certificateResource = getFromEnvironment("BOT_CERTIFICATE_RESOURCE", "/pumpkin.pem");
+        externalUrl = getFromEnvironment("BOT_EXTERNAL_URL");
     }
 
     @NotNull
@@ -49,34 +41,16 @@ public class PumpkinConfig {
         return redisUrl;
     }
 
-    @NotNull
-    public String getKeystorePassword() {
-        return keystorePassword;
-    }
-
-
-    public String getExternalUrl() {
-        return externalUrl;
-    }
-
     public int getPort() {
         return port;
     }
 
-    public String getInternalUrl() {
-        return internalUrl;
-    }
-
     public boolean isWebhook() {
-        return !externalUrl.isBlank();
+        return externalUrl != null;
     }
 
-    public String getKeystoreResource() {
-        return keystoreResource;
-    }
-
-    public String getCertificateResource() {
-        return certificateResource;
+    public String getExternalUrl() {
+        return externalUrl;
     }
 
     private String getFromEnvironment(@NotNull String key) {

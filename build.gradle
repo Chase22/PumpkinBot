@@ -12,6 +12,15 @@ repositories {
     mavenCentral()
 }
 
+task("getPublicCertificate") {
+    doLast {
+
+        Process task = "openssl s_client -servername google.com -connect google.com:443".execute() | "sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p'".execute()
+        task.consumeProcessOutput(System.out, System.err)
+        task.waitFor()
+    }
+}
+
 jar {
     manifest {
         attributes 'Main-Class': 'io.github.chase22.telegram.pumpkinbot.Main'
