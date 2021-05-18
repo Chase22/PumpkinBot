@@ -2,7 +2,6 @@ package io.github.chase22.telegram.pumpkinbot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.chase22.telegram.pumpkinbot.commands.*;
-import io.github.chase22.telegram.pumpkinbot.config.FilesConfig;
 import io.github.chase22.telegram.pumpkinbot.config.PumpkinConfig;
 import io.github.chase22.telegram.pumpkinbot.language.LanguageHandler;
 import io.github.chase22.telegram.pumpkinbot.sender.LongPollingSender;
@@ -19,13 +18,12 @@ public class Injector {
     public ObjectMapper objectMapper;
     public PumpkinBot pumpkinBot;
     public PumpkinConfig pumpkinConfig;
-    public FilesConfig filesConfig;
     public PumpkinStorage pumpkinStorage;
     public LanguageHandler languageHandler;
     public AbsSender sender;
     public UpdateProvider updateProvider;
 
-    public Injector initialize() throws IOException {
+    public Injector initialize() {
         languageHandler = new LanguageHandler();
         pumpkinConfig = new PumpkinConfig();
         objectMapper = new ObjectMapper();
@@ -44,7 +42,6 @@ public class Injector {
             updateProvider = longPollingSender;
         }
 
-        filesConfig = new FilesConfig(pumpkinConfig);
         pumpkinStorage = new PumpkinStorage(pumpkinConfig);
 
         //Commands
