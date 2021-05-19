@@ -17,17 +17,27 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class WebhookUpdateProvider implements UpdateProvider {
+    public static <T> Predicate<T> distinctByKey(
+            Function<? super T, ?> keyExtractor) {
+
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WebhookUpdateProvider.class);
 
     private final List<Consumer<Update>> consumers = new LinkedList<>();
 
     final HttpServer server = new HttpServer();
+
+    private final CopyOnWriteArrayList<Update> updates = new CopyOnWriteArrayList<>();
 
     public WebhookUpdateProvider(
             final String externalUrl,
@@ -35,6 +45,16 @@ public class WebhookUpdateProvider implements UpdateProvider {
             final int port,
             final ObjectMapper objectMapper
     ) {
+
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+
+        executor.scheduleWithFixedDelay(() -> {
+            CopyOnWriteArrayList<Update> updatesCopy = (CopyOnWriteArrayList<Update>) updates.clone();
+            updatesCopy.stream()
+                    .sorted(Comparator.comparing(Update::getUpdateId))
+                    .filter(distinctByKey(Update::getUpdateId))
+                    .parallel().forEach(update -> consumers.forEach(updateConsumer -> updateConsumer.accept(update)));
+        }, 0, 10, TimeUnit.SECONDS);
 
         server.addListener(new NetworkListener("portBinder", "0.0.0.0", port));
 
@@ -46,7 +66,7 @@ public class WebhookUpdateProvider implements UpdateProvider {
                         try {
                             LOGGER.info("Request received");
                             Update update = objectMapper.readValue(request.getReader(), Update.class);
-                            consumers.parallelStream().forEach(consumer -> consumer.accept(update));
+                            updates.add(update);
                             response.setStatus(HttpStatus.OK_200);
                         } catch (JsonMappingException e) {
                             response.setStatus(HttpStatus.BAD_REQUEST_400);
@@ -68,14 +88,14 @@ public class WebhookUpdateProvider implements UpdateProvider {
 
             sender.execute(
                     SetWebhook.builder()
-                    .url(externalUrl)
-                    .certificate(
-                            new InputFile(
-                                    WebhookUpdateProvider.class
-                                            .getClassLoader()
-                                            .getResourceAsStream("certificate.cert"),
-                                    "certificate.cert")
-                    ).build()
+                            .url(externalUrl)
+                            .certificate(
+                                    new InputFile(
+                                            WebhookUpdateProvider.class
+                                                    .getClassLoader()
+                                                    .getResourceAsStream("certificate.cert"),
+                                            "certificate.cert")
+                            ).build()
             );
         } catch (IOException e) {
             LOGGER.error("Error starting server", e);
