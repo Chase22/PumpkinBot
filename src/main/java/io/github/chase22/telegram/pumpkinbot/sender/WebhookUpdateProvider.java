@@ -19,6 +19,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -38,6 +40,7 @@ public class WebhookUpdateProvider implements UpdateProvider {
     final HttpServer server = new HttpServer();
 
     private final CopyOnWriteArrayList<Update> updates = new CopyOnWriteArrayList<>();
+    private final Lock listLock = new ReentrantLock();
 
     public WebhookUpdateProvider(
             final String externalUrl,
@@ -49,7 +52,11 @@ public class WebhookUpdateProvider implements UpdateProvider {
         ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
         executor.scheduleWithFixedDelay(() -> {
+            listLock.lock();
             CopyOnWriteArrayList<Update> updatesCopy = (CopyOnWriteArrayList<Update>) updates.clone();
+            updates.clear();
+            listLock.unlock();
+
             updatesCopy.stream()
                     .sorted(Comparator.comparing(Update::getUpdateId))
                     .filter(distinctByKey(Update::getUpdateId))
@@ -66,7 +73,9 @@ public class WebhookUpdateProvider implements UpdateProvider {
                         try {
                             LOGGER.info("Request received");
                             Update update = objectMapper.readValue(request.getReader(), Update.class);
+                            listLock.lock();
                             updates.add(update);
+                            listLock.unlock();
                             response.setStatus(HttpStatus.OK_200);
                         } catch (JsonMappingException e) {
                             response.setStatus(HttpStatus.BAD_REQUEST_400);
